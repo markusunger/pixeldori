@@ -1,0 +1,20 @@
+{
+  "name": "pixeldori-server",
+  "version": "0.0.1",
+  "description": "The TCP server for pixeldori as well as the renderer for the Unicorn Hat HD",
+  "main": "app.js",
+  "author": "Markus Unger",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "unicornhat-hd": "^0.0.4"
+  },
+  "devDependencies": {
+    "eslint": "^6.8.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.20.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1"
+  }
+}
