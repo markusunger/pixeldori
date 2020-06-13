@@ -12,8 +12,8 @@ const capitalize = function capitalize(str) {
   return `${str.charAt(0).toUpperCase()}${str.substring(1)}`;
 }
 
-const calculatePercentage = function calculatePercentage(current, maximum) {
-  
+const getProgress = function calculatePercentage(elapsed, target) {
+  return parseInt((100 * elapsed) / target, 10);
 };
 
 module.exports = (function appState() {
@@ -24,7 +24,7 @@ module.exports = (function appState() {
   // initial app state
   let timerState = 'offline';
   let currentMode = 'work';
-  let startTime = null;
+  let startTime = 0;
   let elapsedTime = null;
 
   commandEmitter.on('command', (newCommand) => {
@@ -73,10 +73,15 @@ module.exports = (function appState() {
 
   return function getStateUpdate() {
     updateState();
+    // determine amount of time 
+    const elapsed = timerState.startsWith('stopped') 
+      ? elapsedTime
+      : getUnixSeconds() - startTime;
+    const target = currentMode === 'work' ? WORK_BLOCK_LENGTH : PAUSE_BLOCK_LENGTH;
 
     return {
       timerState,
-      elapsedTime: getUnixSeconds() - startTime,
+      progress: getProgress(elapsed, target),
     }
   };
 })();
