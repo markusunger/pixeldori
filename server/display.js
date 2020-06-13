@@ -34,6 +34,7 @@ module.exports = {
   },
 
   displayOff: function displayOff() {
-    unicorn.off();
+    unicorn.clear();
+    unicorn.show();
   },
 };
