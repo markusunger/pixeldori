@@ -4,7 +4,7 @@
   frame, diffing it to the previous one and rendering it if there are changes
 */
 
-const getStateUpdate = require('./appState');
+const getStateUpdate = require('./stateManager');
 const frameRenderer = require('./frameRenderer');
 const { arrayEqual } = require('./utils');
 const { close } = require('./httpServer');
@@ -22,21 +22,29 @@ let prevFrame = [];
 
 const mainLoop = setInterval(() => {
   const state = getStateUpdate();
+
+  // render new frame and send to output if different from previous one
   const newFrame = frameRenderer(state);
   if (!arrayEqual(prevFrame, newFrame)) output.displayFrame(newFrame);
   prevFrame = newFrame;
 }, 1000);
 
-process.on('SIGTERM', () => {
-  output.displayOff();
-  process.exitCode = 1;
+// error and interrupt handling
+const closeAndExit = (err = null) => {
+  if (err) console.error(err);
+  process.exitcode = 1;
   close();
   clearInterval(mainLoop);
+}
+
+process.on('SIGTERM', () => {
+  closeAndExit();
 });
 
 process.on('SIGINT', () => {
-  output.displayOff();
-  process.exitCode = 1;
-  close();
-  clearInterval(mainLoop);
+  closeAndExit();
 });
+
+process.on('uncaughtException', (err) => {
+  closeAndExit(err);
+})

@@ -1,87 +1,113 @@
 /*
-  appState manages the internal state, receiving events from the http server to update
-  the current state, checking for time-based state changes (timer expires) and can give
-  information (to the main loop) what the current timer state is
+  AppState is a prototype object for the pixeldori application state, a simple
+  state machine that keeps track of the current timer status and handles all
+  implications of a state change
 */
-
-const { commandEmitter } = require('./httpServer');
 
 const getUnixSeconds = function getUnixSeconds() { return Date.now() / 1000 };
 
-const capitalize = function capitalize(str) {
-  return `${str.charAt(0).toUpperCase()}${str.substring(1)}`;
-}
+module.exports = (function AppState() {
+  const timerModes = ['work', 'pause'];
 
-const getProgress = function calculatePercentage(elapsed, target) {
-  return parseInt((100 * elapsed) / target, 10);
-};
+  return {
+    // initialize app state with defaults
+    init: function init() {
+      this.timerState = 'offline';
+      this.timerMode = 'work';
+      this.startTime = 0;
+      this.elapsedTime = 0;
+      this.progressPercent = 0;
+      this.workBlockLength = 50;
+      this.pauseBlockLength = 10;
 
-module.exports = (function appState() {
-  // set length of both pomodoro blocks in seconds
-  const WORK_BLOCK_LENGTH = 10;
-  const PAUSE_BLOCK_LENGTH = 5;
+      return this;
+    },
 
-  // initial app state
-  let timerState = 'offline';
-  let currentMode = 'work';
-  let startTime = 0;
-  let elapsedTime = null;
+    // handling transitions to other timer states
+    setTimerState: function setTimerState(newState) {
+      switch (newState) {
+        case 'offline':
+          this.progressPercent = 0;
+          this.timerState = 'offline';
+          break;
+        case 'active':
+          if (this.timerState === 'paused') {
+            const currentTime = getUnixSeconds();
+            this.startTime = currentTime - this.elapsedTime;
+            this.timerState = newState;
+          }
 
-  commandEmitter.on('command', (newCommand) => {
-    switch (newCommand) {
-      case 'work':
-        timerState = 'activeWork';
-        currentMode = 'work';
-        startTime = getUnixSeconds();
-        break;
-      case 'pause':
-        timerState = 'activePause';
-        currentMode = 'pause';
-        startTime = getUnixSeconds();
-        break;
-      case 'stop':
-        timerState = `stopped${capitalize(currentMode)}`;
-        elapsedTime = getUnixSeconds() - startTime;
-        break;
-      case 'resume':
-        timerState = `active${capitalize(currentMode)}`;
-        startTime = getUnixSeconds() - elapsedTime;
-        break;
-      case 'quit':
-        timerState = 'offline';
-        break;
-      default:
-        break;
-    }
-  });
+          if (this.timerState === 'offline' || this.timerState === 'completed') {
+            this.startTime = getUnixSeconds();
+            this.elapsedTime = 0;
+            this.timerState = newState;
+          }
+          break;
+        case 'paused':
+          if (this.timerState === 'active') {
+            const currentTime = getUnixSeconds();
+            this.elapsedTime = currentTime - this.startTime;
+            this.progressPercent = this.calculateProgressPercent(currentTime);
+            this.timerState = newState;
+          }
+          break;
+        case 'completed':
+          this.progressPercent = 100;
+          this.timerState = newState;
+          break;
+        default:
+          throw new Error('Failing due to unknown timer state');
+      }
+    },
 
-  const updateState = function updateState() {
-    const currentTime = getUnixSeconds();
-    const elapsed = currentTime - startTime;
+    setTimerMode: function setTimerMode(newMode) {
+      if (!timerModes.includes(newMode)) throw (new Error('Timer mode is invalid.'));
+      this.timerMode = newMode;
+    },
 
-    // no state updates when timer is stopped
-    if (timerState.startsWith('stopped')) return true;
+    getBlockLength: function getBlockLength() {
+      if (this.timerMode === 'work') return this.workBlockLength;
+      if (this.timerMode === 'pause') return this.pauseBlockLength;
+    },
 
-    if (timerState === 'activeWork' && elapsed > WORK_BLOCK_LENGTH) {
-      timerState = 'completedWork';
-    }
+    setBlockLength: function setBlockLength(blockType, newLength) {
+      if (blockType === 'work') {
+        this.workBlockLength = newLength;
+      }
+      if (blockType === 'pause') {
+        this.pauseBlockLength = newLength;
+      }
+    },
 
-    if (timerState === 'activePause' && elapsed > PAUSE_BLOCK_LENGTH) {
-      timerState = 'completedPause';
-    }
-  };
 
-  return function getStateUpdate() {
-    updateState();
-    // determine amount of time 
-    const elapsed = timerState.startsWith('stopped') 
-      ? elapsedTime
-      : getUnixSeconds() - startTime;
-    const target = currentMode === 'work' ? WORK_BLOCK_LENGTH : PAUSE_BLOCK_LENGTH;
+    calculateProgressPercent: function calculateProgressPercent(currentTime) {
+      const elapsedTime = currentTime - this.startTime;
+      const progress = (100 * elapsedTime) / this.getBlockLength();
+      return Math.round(progress);
+    },
 
-    return {
-      timerState,
-      progress: getProgress(elapsed, target),
-    }
-  };
+    handleCompletion: function handleCompletion(currentTime) {
+      const blockEndTime = this.startTime + this.getBlockLength();
+
+      if (blockEndTime < currentTime) {
+        this.setTimerState('completed');
+      }
+    },
+
+    update: function update() {
+      if (this.timerState === 'active') {
+        const currentTime = getUnixSeconds();
+        this.progressPercent = this.calculateProgressPercent(currentTime);
+        this.handleCompletion(currentTime);
+      }
+
+      return {
+        timerState: this.timerState,
+        timerMode :this.timerMode,
+        progress: this.progressPercent,
+      };
+    },
+
+
+  }
 })();

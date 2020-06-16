@@ -25,31 +25,25 @@ module.exports = (function frameRenderer() {
     return buffer;
   }
 
-  return function render({ timerState, progress }) {
+  return function render({ timerState, timerMode, progress }) {
     switch (timerState) {
       // generate empty screen for offline state
       case 'offline':
         return generateFrame(() => null);
 
       // generate progress frame for active or stopped work/pause
-      // fall-through case statements because they are all generated
+      // fall-through case statements because they are both generated
       // the same (so far)
-      case 'stoppedPause':
-      case 'activePause':
-      case 'stoppedWork':
-      case 'activeWork': {
+      case 'active':
+      case 'paused': {
         const toFill = parseInt((FRAME_X * FRAME_Y * progress) / 100, 10);
         return generateFrame((x, y) => {
           if ((y * FRAME_X) + x <= toFill) {
-            switch (timerState) {
-              case 'activeWork':
-                return 'workCompleted';
-              case 'stoppedWork':
-                return 'workCompletedStopped';
-              case 'activePause':
-                return 'pauseCompleted';
-              case 'stoppedPause':
-                return 'pauseCompletedStopped';
+            switch (timerMode) {
+              case 'work':
+                return timerState === 'active' ? 'workCompleted' : 'workCompletedStopped';
+              case 'pause':
+                return timerState === 'active' ? 'pauseCompleted': 'pauseCompletedStopped';
               default:
                 break;
             }
@@ -60,13 +54,10 @@ module.exports = (function frameRenderer() {
       }
 
       // generate screen for completed work or pause
-      // again with a fallthrough case statement
-      case 'completedWork':
-      case 'completedPause': {
+      case 'completed':
         return generateFrame(() => {
           return 'done';
         });
-      } 
       default:
         break;
     }
