@@ -63,6 +63,11 @@ module.exports = (function AppState() {
 
     setTimerMode: function setTimerMode(newMode) {
       if (!timerModes.includes(newMode)) throw (new Error('Timer mode is invalid.'));
+      if (newMode !== this.timerMode) {
+        this.startTime = getUnixSeconds();
+        this.elapsedTime = 0;
+        this.progressPercent = 0;
+      }
       this.timerMode = newMode;
     },
 
