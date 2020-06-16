@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 // valid commands for the pixeldori server
-const ALLOWED_COMMANDS = ['work', 'pause', 'stop', 'resume'];
+const ALLOWED_COMMANDS = ['work', 'pause', 'stop', 'resume', 'quit'];
 
 require('dotenv').config({
   path: `${__dirname}/.env`, // get actual path to script instead of call site
@@ -14,8 +14,9 @@ const printHelp = () => {
   console.log(`pxd usage:
     work    start a new work timer
     pause   start a new pause timer
-    stop    interrupt current timer
+    stop    interrupt and pause current timer
     resume  continue current timer
+    quit    stop timer and turn off display
   `);
 }
 
