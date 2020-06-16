@@ -4,7 +4,7 @@
   information (to the main loop) what the current timer state is
 */
 
-const commandEmitter = require('./httpServer');
+const { commandEmitter } = require('./httpServer');
 
 const getUnixSeconds = function getUnixSeconds() { return Date.now() / 1000 };
 

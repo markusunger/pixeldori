@@ -17,5 +17,8 @@ module.exports = (() => {
   
   server.listen(process.env.PORT, () => console.log(`Pixeldori server started ...`));
 
-  return commandEmitter;
+  return {
+    commandEmitter,
+    close: () => { server.close() },
+  };
 })();

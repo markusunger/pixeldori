@@ -7,6 +7,7 @@
 const getStateUpdate = require('./appState');
 const frameRenderer = require('./frameRenderer');
 const { arrayEqual } = require('./utils');
+const { close } = require('./httpServer');
 
 let output;
 try {
@@ -19,7 +20,7 @@ try {
 
 let prevFrame = [];
 
-setInterval(() => {
+const mainLoop = setInterval(() => {
   const state = getStateUpdate();
   const newFrame = frameRenderer(state);
   if (!arrayEqual(prevFrame, newFrame)) output.displayFrame(newFrame);
@@ -28,10 +29,14 @@ setInterval(() => {
 
 process.on('SIGTERM', () => {
   output.displayOff();
-  process.exit(-1);
+  process.exitCode = 1;
+  close();
+  clearInterval(mainLoop);
 });
 
 process.on('SIGINT', () => {
   output.displayOff();
-  process.exit(-1);
+  process.exitCode = 1;
+  close();
+  clearInterval(mainLoop);
 });
