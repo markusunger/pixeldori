@@ -15,6 +15,14 @@ const arrayEqual = function arrayEqual(array1, array2) {
   return true;
 }
 
+const objectsEqual = function objectsEqual(obj1, obj2) {
+  // shallow checks two objects for equality
+  const keyLengthEqual = Object.keys(obj1).length === Object.keys(obj2).length;
+  const valuesEqual = Object.keys(obj1).every(key => obj1[key] === obj2[key]);
+  return keyLengthEqual && valuesEqual;
+}
+
 module.exports = {
   arrayEqual,
+  objectsEqual,
 };

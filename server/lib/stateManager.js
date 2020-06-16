@@ -29,7 +29,7 @@ module.exports = (function appState() {
         state.setTimerState('offline');
         break;
       case 'set':
-        state.setBlockLength(query.type, query.amount);
+        state.setBlockLength(query.type, parseInt(query.amount, 10));
         break;
       default:
         break;

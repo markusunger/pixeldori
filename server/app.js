@@ -6,7 +6,8 @@
 
 const getStateUpdate = require('./lib/stateManager');
 const frameRenderer = require('./lib/frameRenderer');
-const { arrayEqual } = require('./lib/utils');
+const animation = require('./lib/animation');
+const { arrayEqual, objectsEqual } = require('./lib/utils');
 const { close } = require('./lib/httpServer');
 
 let output;
@@ -19,15 +20,34 @@ try {
 }
 
 let prevFrame = [];
+let prevMode = {};
 
 const mainLoop = setInterval(() => {
   const state = getStateUpdate();
 
   // render new frame and send to output if different from previous one
   const newFrame = frameRenderer(state);
+
+  const mode = {
+    timerState: state.timerState,
+    timerMode: state.timerMode,
+  };
+
+  // check for state transitions to trigger new animations
+  if (!objectsEqual(prevMode, mode)) {
+    animation.clearAllAnimations();
+
+    if (mode.timerState === 'active') {
+      animation.addAnimation('active', mode.timerMode);
+    }
+  }
+
+  animation.animate(newFrame);
+
   if (!arrayEqual(prevFrame, newFrame)) output.displayFrame(newFrame);
   prevFrame = newFrame;
-}, 1000);
+  prevMode = mode;
+}, 50);
 
 // error and interrupt handling
 const closeAndExit = (err = null) => {
