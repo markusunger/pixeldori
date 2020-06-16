@@ -40,6 +40,7 @@ module.exports = (function AppState() {
           if (this.timerState === 'offline' || this.timerState === 'completed') {
             this.startTime = getUnixSeconds();
             this.elapsedTime = 0;
+            this.progressPercent = 0;
             this.timerState = newState;
           }
           break;
