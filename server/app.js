@@ -32,7 +32,7 @@ const mainLoop = setInterval(() => {
 // error and interrupt handling
 const closeAndExit = (err = null) => {
   if (err) console.error(err);
-  process.exitcode = 1;
+  process.exitCode = 1;
   close();
   clearInterval(mainLoop);
 }
