@@ -16,8 +16,9 @@ const symbols = {
 };
 
 module.exports = {
-  displayFrame: function displayFrame(frame) {
+  displayFrame: function displayFrame(frame, progress) {
     console.clear();
+    console.log(`${progress} %`);
     for (let y = 0; y < DISPLAY_Y; y += 1) {
       let line = '';
       for (let x = 0; x < DISPLAY_X; x += 1) {

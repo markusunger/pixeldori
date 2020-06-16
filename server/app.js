@@ -19,7 +19,6 @@ try {
   output = require('./lib/devDisplay');
 }
 
-let prevFrame = [];
 let prevMode = {};
 
 const mainLoop = setInterval(() => {
@@ -44,10 +43,9 @@ const mainLoop = setInterval(() => {
 
   animation.animate(newFrame);
 
-  if (!arrayEqual(prevFrame, newFrame)) output.displayFrame(newFrame);
-  prevFrame = newFrame;
+  output.displayFrame(newFrame, state.progress);
   prevMode = mode;
-}, 50);
+}, 100);
 
 // error and interrupt handling
 const closeAndExit = (err = null) => {

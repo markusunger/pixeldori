@@ -88,8 +88,7 @@ module.exports = (function AppState() {
 
     calculateProgressPercent: function calculateProgressPercent(currentTime) {
       const elapsedTime = currentTime - this.startTime;
-      const progress = (100 * elapsedTime) / this.getBlockLength();
-      return Math.round(progress);
+      return (100 * elapsedTime) / this.getBlockLength();
     },
 
     handleCompletion: function handleCompletion(currentTime) {

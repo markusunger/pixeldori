@@ -8,7 +8,7 @@ require('dotenv').config();
 module.exports = (() => {
   let applicationState = 'Pixeldori initialized.';
   const setStateUpdate = (state) => {
-    applicationState = `Timer is currently in ${state.timerState} ${state.timerMode} mode (${state.progress}% progress)`;
+    applicationState = `Timer is currently in ${state.timerState} ${state.timerMode} mode (${Math.round(state.progress)}% progress)`;
   };
 
   const commandEmitter = new EventEmitter;
