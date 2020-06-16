@@ -4,18 +4,18 @@
   frame, diffing it to the previous one and rendering it if there are changes
 */
 
-const getStateUpdate = require('./stateManager');
-const frameRenderer = require('./frameRenderer');
-const { arrayEqual } = require('./utils');
-const { close } = require('./httpServer');
+const getStateUpdate = require('./lib/stateManager');
+const frameRenderer = require('./lib/frameRenderer');
+const { arrayEqual } = require('./lib/utils');
+const { close } = require('./lib/httpServer');
 
 let output;
 try {
-  output = require('./display');
+  output = require('./lib/display');
 } catch (e) {
   // set output to mocked dev version for local testing when SPI device
   // cannot be initialized
-  output = require('./devDisplay');
+  output = require('./lib/devDisplay');
 }
 
 let prevFrame = [];
