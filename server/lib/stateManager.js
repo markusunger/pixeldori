@@ -28,9 +28,11 @@ module.exports = (function appState() {
       case 'quit':
         state.setTimerState('offline');
         break;
-      case 'set':
-        state.setBlockLength(query.type, parseInt(query.amount, 10));
-        break;
+      case 'set': {
+          const amount = parseInt(query.amount * 60, 10); // convert into seconds
+          state.setBlockLength(query.type, amount);
+          break;
+      }
       default:
         break;
     }

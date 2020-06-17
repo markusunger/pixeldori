@@ -7,6 +7,7 @@ try {
   throw(new Error('Cannot initialize Unicorn Hat HD device on this machine'));
 }
 
+unicorn.setBrightness(0.7);
 
 // unicorn display settings for colors, orientation
 const colors = {

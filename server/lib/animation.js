@@ -7,7 +7,7 @@ module.exports = (function animation() {
 
   return {
     addAnimation(type) {
-
+  
     },
 
     clearAllAnimations() {
@@ -15,7 +15,7 @@ module.exports = (function animation() {
     },
 
     animate: function animate(frame) {
-      
+
     },
   };
 }());
